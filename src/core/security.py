@@ -20,18 +20,21 @@ class SecurityManager:
         """Check if user has permission based on username or roles"""
         member = interaction.user
 
+        if isinstance(interaction.channel, discord.abc.PrivateChannel):
+            return SecurityResult(False, f"This workflow is not allowed on this channel.")
+
         if not security_config.get('enabled', False):
             return SecurityResult(True)
 
         allowed_users = security_config.get('allowed_users', [])
         if len(allowed_users) > 0 and member.name not in allowed_users:
             return SecurityResult(False, f"You don't have permission to use this workflow.")
-
-        allowed_roles = security_config.get('allowed_roles', [])
-        if hasattr(member, 'roles'):
-            member_roles = [role.name for role in member.roles]
-            if len(allowed_roles) > 0 and not any(role in allowed_roles for role in member_roles):
-                return SecurityResult(False, f"You don't have required roles to use this workflow.")
+        else:
+            allowed_roles = security_config.get('allowed_roles', [])
+            if hasattr(member, 'roles'):
+                member_roles = [role.name for role in member.roles]
+                if len(allowed_roles) > 0 and not any(role in allowed_roles for role in member_roles):
+                    return SecurityResult(False, f"You don't have required roles to use this workflow.")
 
         if hasattr(interaction, 'channel'):
             allowed_channels = security_config.get('allowed_channels', [])
