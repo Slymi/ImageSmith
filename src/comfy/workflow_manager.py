@@ -38,9 +38,13 @@ class WorkflowManager:
             node_id = str(workflow_config['text_prompt_node_id'])
             if node_id in modified_workflow:
                 node = modified_workflow[node_id]
-                if 'inputs' in node and 'text' in node['inputs']:
-                    node['inputs']['text'] = prompt
-                    logger.debug(f"Updated prompt in node {node_id}: {prompt}")
+                if 'inputs' in node and ('text' in node['inputs'] or 'value' in node['inputs']):
+                    if 'text' in node['inputs']:
+                        node['inputs']['text'] = prompt
+                        logger.debug(f"Updated prompt in node {node_id}: {prompt}")
+                    if 'value' in node['inputs']:
+                        node['inputs']['value'] = prompt
+                        logger.debug(f"Updated prompt in node {node_id}: {prompt}")
 
         # Update image if provided and node is configured
         if image and 'image_input_node_id' in workflow_config:
