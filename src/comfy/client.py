@@ -255,6 +255,21 @@ class ComfyUIClient:
                                                     filename=current_image_filename,
                                                 )
                                                 await message_callback("🎥 New video generated!", image_file)
+                        if node_output and isinstance(node_output, dict) and 'audio' in node_output:
+                            for audio_data in node_output['audio']:
+                                if isinstance(audio_data, dict) and 'filename' in audio_data:
+                                    audio_url = self._get_resource_url(instance, audio_data)
+                                    if audio_url:
+                                        async with instance.session.get(audio_url) as response:
+                                            if response.status == 200:
+                                                current_image_data = await response.read()
+                                                current_image_filename = audio_data.get('filename')
+
+                                                image_file = discord.File(
+                                                    io.BytesIO(current_image_data),
+                                                    filename=current_image_filename,
+                                                )
+                                                await message_callback("🔊 New audio generated!", image_file)
 
                     elif msg_type == 'error':
                         error_msg = msg_data.get('error', 'Unknown error')
